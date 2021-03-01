@@ -1,15 +1,20 @@
-import {ChatActionTypes, FIELD_CHECKED, FIELD_FILL_IN} from './action-types';
 
-export function fieldChecked(index: number): ChatActionTypes {
-  return {
-    type: FIELD_CHECKED,
+export function fieldChecked(index: number) {
+  return ({
+    type: 'game/FIELD_CHECKED',
     payload: index
-  }
+  } as const)
 }
+//type FieldCheckedType = ReturnType<typeof fieldChecked>
 
-export function fieldFillIn(index: number): ChatActionTypes {
-  return {
-    type: FIELD_FILL_IN,
+export function fieldFillIn(index: number) {
+  return ({
+    type: 'game/FIELD_FILL_IN',
     payload: index
-  }
+  } as const)
 }
+//type FieldFillInType = ReturnType<typeof fieldFillIn>
+
+export type ChatActionTypes =
+    ReturnType<typeof fieldChecked>
+    | ReturnType<typeof fieldFillIn>

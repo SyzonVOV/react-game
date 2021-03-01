@@ -1,6 +1,6 @@
 import {combineReducers} from 'redux';
-import {ChatActionTypes, FIELD_CHECKED, FIELD_FILL_IN} from "./action-types";
 import {createFields, fillInField} from "../utils/functionField";
+import { ChatActionTypes } from './actions';
 
 
 const initialGame = {
@@ -13,10 +13,12 @@ const initialGame = {
     }
 }
 
-const gameReducer = (state = initialGame, action: ChatActionTypes) => {
+type InitialState = typeof initialGame;
+
+const gameReducer = (state:InitialState = initialGame, action: ChatActionTypes) => {
     switch (action.type) {
 
-        case FIELD_CHECKED: {
+        case "game/FIELD_CHECKED": {
 
             return {
                 ...state,
@@ -28,7 +30,7 @@ const gameReducer = (state = initialGame, action: ChatActionTypes) => {
                 })
             };
         }
-        case FIELD_FILL_IN: {
+        case "game/FIELD_FILL_IN": {
             const [fields, mines] = fillInField(action.payload, state.settings.difficulty, state.fields)
             return {
                 ...state,
