@@ -1,7 +1,8 @@
 export interface IField {
     index: number,
-    status: string,
-    id: string,
+    status: 'mine'|'flag'|'empty'|number,
+    style: string,
+    readonly id: string,
     checked: boolean
 }
 

@@ -50,19 +50,8 @@ const setFieldWithNumbers = (fieldWithMines: IField[], width: number, height: nu
             if (i < width * height - width && !isLeftEdge && field[i - 1 + width].status === 'mine') total++
             if (i < width * height - width - 1 && !isRightEdge && field[i + 1 + width].status === 'mine') total++
             if (i < width * height - width && field[i + width].status === 'mine') total++
-            if (total) field[i].status = total.toString()
+            if (total) field[i].status = total
         }
-        // if (field[i].status !== 'mine') {
-        //     if (field[i-width+1] && field[i-width+1].status === 'mine') total++;
-        //     if (field[i-width] && field[i-width].status === 'mine') total++;
-        //     if (field[i-width-1] && field[i-width-1].status === 'mine') total++;
-        //     if (field[i-1] && field[i-1].status === 'mine') total++;
-        //     if (field[i+1] && field[i+1].status === 'mine') total++;
-        //     if (field[i+width-1] && field[i+width-1].status === 'mine') total++;
-        //     if (field[i+width] && field[i+width].status === 'mine') total++;
-        //     if (field[i+width+1] && field[i+width+1].status === 'mine') total++;
-        //         if (total) field[i].status = total.toString()
-        //     }
     }
     return field
 }
@@ -73,7 +62,8 @@ export const createFields = (difficulty: string): IField[] => {
         return {
             id: uuidv4(),
             index,
-            status: 'valid',
+            status: 'empty',
+            style: 'valid',
             checked: false
         }
     })
@@ -87,11 +77,98 @@ export const fillInField = (clickedIndex: number, difficulty: string, field: IFi
     const fieldWithMines = setFieldWithMines(field, mineIndexes);
     const completedField = setFieldWithNumbers(fieldWithMines, width, height)
     // const completedField = fieldWithMines
-    console.log(completedField.reduce((previousValue, currentValue) => {
-        if (currentValue.status === 'mine') {
-            return previousValue + 1
-        } else return previousValue
-    }, 0))
+    // console.log(completedField.reduce((previousValue, currentValue) => {
+    //     if (currentValue.status === 'mine') {
+    //         return previousValue + 1
+    //     } else return previousValue
+    // }, 0))
     return [completedField, mineIndexes]
 }
 
+export const checkEndGame = (clickedIndex: number, field: IField[]) => {
+    return field[clickedIndex].status === 'mine';
+
+}
+
+export const checkField = (index: number, field: IField[], difficulty: string) => {
+    let {width, height} = setSize(difficulty);
+    let newField = [...field];
+    let clickSquares: number[] = [index]
+    if (newField[index].status === 'empty') checkSquare(index)
+    clickSquares.forEach(square => click(square))
+
+    function click(index: number): void {
+        let total = newField[index].status
+        newField[index].checked = true;
+        newField[index].style = 'checked';
+
+        if (total !== 'empty') {
+
+            if (total === 1) newField[index].style = 'one checked'
+            if (total === 2) newField[index].style = 'two checked'
+            if (total === 3) newField[index].style = 'three checked'
+            if (total === 4) newField[index].style = 'four checked'
+            if (total === 5) newField[index].style = 'five checked'
+            if (total === 6) newField[index].style = 'six checked'
+        }
+    }
+
+    //check neighboring squares once square is clicked
+    function checkSquare(currentIndex: number) {
+        const isLeftEdge = (currentIndex % width === 0);
+        const isRightEdge = (currentIndex % width === width - 1);
+        let squaresNeedToCheck: number[] = [];
+
+        const insertToArrays = (index: number): void => {
+            if (!clickSquares.includes(index)) {
+                if (newField[index].status === 'empty') {
+                    squaresNeedToCheck.push(index)
+                    clickSquares.push(index)
+                } else if (newField[index].status !== 'flag') {
+                    clickSquares.push(index)
+                }
+            }
+        }
+
+
+        if (currentIndex > 0 && !isLeftEdge) {
+            insertToArrays(currentIndex - 1)
+        }
+        if (currentIndex > width - 1 && !isRightEdge) {
+            let index = currentIndex + 1 - width
+            insertToArrays(index)
+        }
+        if (currentIndex > width - 1) {
+            let index = currentIndex - width
+            insertToArrays(index)
+        }
+        if (currentIndex > width && !isLeftEdge) {
+            let index = currentIndex - 1 - width
+            insertToArrays(index)
+        }
+        if (currentIndex < width * height - 1 && !isRightEdge) {
+            let index = currentIndex + 1
+            insertToArrays(index)
+        }
+        if (currentIndex < width * height - width && !isLeftEdge) {
+            let index = currentIndex - 1 + width
+            insertToArrays(index)
+        }
+        if (currentIndex < width * height - width && !isRightEdge) {
+            let index = currentIndex + 1 + width
+            insertToArrays(index)
+        }
+        if (currentIndex < width * height - width) {
+            let index = currentIndex + width
+            insertToArrays(index)
+        }
+
+        if (squaresNeedToCheck.length) {
+            squaresNeedToCheck.forEach((square) => {
+                checkSquare(square);
+            })
+        }
+    }
+
+    return newField
+}
